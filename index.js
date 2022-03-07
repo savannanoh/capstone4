@@ -6,7 +6,6 @@ const reopen = require('./buttons/reopen.js');
 const send = require('./buttons/send.js');
 const intros = require('./intros.js');
 
-
 const clientId = process.env.CLIENT_ID;
 const guildId = process.env.GUILD_ID;
 const token  = process.env.TOKEN;
