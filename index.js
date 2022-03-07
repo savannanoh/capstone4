@@ -2,6 +2,7 @@ const create = require('./create.js');
 const offer = require('./buttons/offer.js');
 const clear = require('./buttons/clear.js');
 const leave = require('./buttons/leave.js');
+const reopen = require('./buttons/reopen.js');
 
 const clientId = process.env.CLIENT_ID;
 const guildId = process.env.GUILD_ID;
@@ -85,32 +86,7 @@ client.on('interactionCreate', async interaction => {
     } else if(interaction.customId.startsWith('l')) { //delete channel button part 1
       leave.delete_channel(interaction);
     } else if(interaction.customId.startsWith('r')) { //re-open request
-      const re_id = interaction.customId.substring(1);
-      if(re_id === interaction.user.id) {
-        const c_id = 'c'+re_id;
-        const o_id = 'o'+re_id;
-        const re_row = new MessageActionRow()
-          .addComponents([
-            new MessageButton()
-              .setCustomId(c_id)
-              .setLabel('remove')
-              .setStyle('SECONDARY'),
-            new MessageButton()
-            	.setCustomId(o_id)
-            	.setLabel('offer help')
-            	.setStyle('PRIMARY')
-          ]);
-
-        var re_embed = null;
-        await interaction.message.embeds.forEach(async(e) => {
-          re_embed = e;
-        });
-        
-        const m = interaction.member.guild.channels.cache.find(c => c.name === "help").send({ embeds: [re_embed], components: [re_row] });
-        await interaction.message.delete();
-      } else {
-        await interaction.reply({ content: "Only the person who requested can re-open the request", ephemeral: true });
-      }
+      reopen.reopen_req(interaction);
     } else if(interaction.customId.startsWith('d')) { //delete the channel button part 2
       await interaction.channel.delete();
     } else if(interaction.customId.startsWith('s')) { //send request button
