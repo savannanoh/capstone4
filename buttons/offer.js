@@ -1,4 +1,4 @@
-const create = require('./create.js');
+const create = require('.././create.js');
 
 const { Client, Collection, Intents, Permissions, MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
 

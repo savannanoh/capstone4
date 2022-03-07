@@ -1,5 +1,6 @@
 const create = require('./create.js');
-const offer = require('./offer.js');
+const offer = require('./buttons/offer.js');
+const clear = require('./buttons/clear.js');
 
 const clientId = process.env.CLIENT_ID;
 const guildId = process.env.GUILD_ID;
@@ -80,12 +81,7 @@ client.on('interactionCreate', async interaction => {
     if(interaction.customId.startsWith('o')) { //offer help button
       offer.offer_help(client, interaction);
     } else if(interaction.customId.startsWith('c')) { //clear request button
-      if(interaction.customId.substring(1) === interaction.user.id) {
-        await interaction.message.delete();
-        await interaction.reply({ content: "Your request has been removed", ephemeral: true });
-      } else {
-        await interaction.reply({ content: "Only the person who requested can remove the request", ephemeral: true });
-      } 
+      clear.remove_req(interaction);
     } else if(interaction.customId.startsWith('l')) { //delete channel button part 1
       const fetchedChannel = interaction.member.guild.channels.cache.get(interaction.customId.substring(1));
       fetchedChannel.messages.fetch({ limit: 1 }).then(messages => {
