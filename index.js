@@ -105,25 +105,17 @@ client.on('interactionCreate', async interaction => {
   		await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
   	}
   } else if(interaction.isButton()) {
-    console.log(interaction.customId);
-    console.log(interaction.user.id);
-
     if(interaction.customId.startsWith('o')) {
       if(interaction.customId.substring(1) === interaction.user.id) {
-        console.log('case1');
         //await interaction.update({ content: 'case1', components: [], ephemeral: true });
         await interaction.reply({ content: "You can't offer help on your own request. If you want to remove your request, click \"remove\"", ephemeral: true });
       } else {
-        console.log('case2');
-        console.log("interaction");
-        console.log(interaction.message);
         //await interaction.update({ content: 'case2', components: [], ephemeral: true });
         await interaction.reply({ content: "Thank you for offering your support! You will be invited to a separate channel", ephemeral: true });    
 
         //send to help-archive
         var archive_embed = null;
         await interaction.message.embeds.forEach(async(e) => {
-          console.log(e);
           archive_embed = e;
         });
         const id = interaction.customId.substring(1);
@@ -149,19 +141,16 @@ client.on('interactionCreate', async interaction => {
       }
     } else if(interaction.customId.startsWith('c')) {
       if(interaction.customId.substring(1) === interaction.user.id) {
-        console.log('case3');
         //await interaction.update({ content: 'case3', components: [], ephemeral: true });
         await interaction.message.delete();
         await interaction.reply({ content: "Your request has been removed", ephemeral: true });
       } else {
-        console.log('case4');
         await interaction.reply({ content: "Only the person who requested can remove the request", ephemeral: true });
         //await interaction.update({ content: 'case4', components: [], ephemeral: true });
       } 
     } else if(interaction.customId.startsWith('l')) {
       //const channel = await interaction.member.guild.channels.cache.find(c => c.name === interaction.customId.substring(1));
       const fetchedChannel = interaction.member.guild.channels.cache.get(interaction.customId.substring(1));
-      console.log("leave channel" + fetchedChannel);
 
 
       fetchedChannel.messages.fetch({ limit: 1 }).then(messages => {
@@ -240,7 +229,6 @@ client.on('interactionCreate', async interaction => {
 
         var re_embed = null;
         await interaction.message.embeds.forEach(async(e) => {
-          console.log(e);
           re_embed = e;
         });
         
@@ -253,12 +241,16 @@ client.on('interactionCreate', async interaction => {
       await interaction.channel.delete();
     } else if(interaction.customId.startsWith('s')) {
       //TODO
+      let role = interaction.member.guild.roles.cache.find(role => role.name === "available");
+
       const user = interaction.customId.substring(1);
       var req_embed = null;
+      var urgent = false;
       await interaction.message.embeds.forEach(async(e) => {
-        console.log(e);
         if(req_embed === null) {
           req_embed = e;
+          console.log(e.fields[0].value);
+          urgent = e.fields[0].value; //TODO
         }
       });
 
@@ -275,8 +267,14 @@ client.on('interactionCreate', async interaction => {
         	.setLabel('offer help')
         	.setStyle('PRIMARY')
       ]);
+
+      if(urgent.startsWith('t')) {
+        const m = await interaction.member.guild.channels.cache.find(c => c.name === "help").send({ content: `${role}`, embeds: [req_embed], components: [btns] });
+      } else {
+        const m = await interaction.member.guild.channels.cache.find(c => c.name === "help").send({ embeds: [req_embed], components: [btns] });
+      }
       
-      const m = await interaction.member.guild.channels.cache.find(c => c.name === "help").send({ embeds: [req_embed], components: [btns] });
+      //const m = await interaction.member.guild.channels.cache.find(c => c.name === "help").send({ embeds: [req_embed], components: [btns] });
       await interaction.update({ content: "Your request has been sent to `#help`. You can remove it by going to `#help` and clicking `remove` under your message", components: [], ephemeral: true });
       //await interaction.reply({ content: "Your request has been sent to `#help`. You can remove it by going to `#help` and clicking `remove` under your message", ephemeral: true });
       //await interaction.message.delete();
@@ -313,7 +311,6 @@ client.login(token);
 //async function createPrivateChannel(interaction, r_id, m_id) {
 const createPrivateChannel = async function (interaction, r_id, m_id) {
 
-  console.log(m_id);
   const o_id = interaction.user.id;
   const offerer = interaction.user;
   //const requester = client.users.get(r_id).username;
@@ -337,13 +334,10 @@ const createPrivateChannel = async function (interaction, r_id, m_id) {
   console.log(interaction.options);
   */
   const help = await interaction.member.guild.channels.cache.find(c => c.name === "help");
-  console.log("smth");
   //console.log(help);
   const orig_msg_id = await help.messages.fetch(m_id);
-  console.log("smth2");
   //console.log(orig_msg_id);
   await orig_msg_id.embeds.forEach(async(e) => {
-    console.log(e);
     const o = await channel.send({ content: "As a reminder, here's the original support request, copied from `#help`", embeds: [e] });
     o.pin();
   });

@@ -11,7 +11,6 @@ module.exports = {
 	async execute(interaction) {
     const notify = interaction.options.getBoolean("notify");
     if(notify) {
-      console.log("available");
       let role = interaction.member.guild.roles.cache.find(role => role.name === "available");
       if (role) {
         if(interaction.member.roles.cache.some(role => role.name === 'available')) {
@@ -24,7 +23,6 @@ module.exports = {
 
       }
     } else {
-      console.log("not available");
       let role = interaction.member.guild.roles.cache.find(role => role.name === "available");
       if (role) {
         if(!interaction.member.roles.cache.some(role => role.name === 'available')) {

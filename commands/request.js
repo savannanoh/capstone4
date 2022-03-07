@@ -196,9 +196,5 @@ module.exports = {
     
 //user.send("Hello").catch(console.error);
 
-    if(urgency) 
-      console.log("urgent");
-    else
-      console.log("not urgent");
 	},
 };
