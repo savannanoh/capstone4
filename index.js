@@ -1,13 +1,13 @@
 const create = require('./create.js');
 const offer = require('./buttons/offer.js');
 const clear = require('./buttons/clear.js');
+const leave = require('./buttons/leave.js');
 
 const clientId = process.env.CLIENT_ID;
 const guildId = process.env.GUILD_ID;
 const token  = process.env.TOKEN;
 const fs = require('node:fs');
 const { Client, Collection, Intents, Permissions, MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
-const ONE_DAY = 86400000;
 const myIntents = new Intents();
 myIntents.add(Intents.FLAGS.GUILD_PRESENCES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.DIRECT_MESSAGES);
 const client = new Client({ intents: myIntents, partials: ['MESSAGE'] });
@@ -83,23 +83,7 @@ client.on('interactionCreate', async interaction => {
     } else if(interaction.customId.startsWith('c')) { //clear request button
       clear.remove_req(interaction);
     } else if(interaction.customId.startsWith('l')) { //delete channel button part 1
-      const fetchedChannel = interaction.member.guild.channels.cache.get(interaction.customId.substring(1));
-      fetchedChannel.messages.fetch({ limit: 1 }).then(messages => {
-        let lastMessage = messages.first();
-        if ((Date.now() - lastMessage.createdTimestamp) > ONE_DAY/12) {
-          const del_row = new MessageActionRow()
-            .addComponents([
-              new MessageButton()
-                .setCustomId("delete")
-                .setLabel('delete')
-                .setStyle('DANGER')
-            ]);
-          interaction.reply({ content: "Are you sure you want to delete this channel? This action cannot be undone. To go back, click \"Dismiss message\"", components: [del_row], ephemeral: true });
-        } else {
-          interaction.reply({ content: "Looks like your conversation might still be active. After 2 hours of inactivity you may delete this conversation", ephemeral: true });
-        }
-      })
-      .catch(console.error);
+      leave.delete_channel(interaction);
     } else if(interaction.customId.startsWith('r')) { //re-open request
       const re_id = interaction.customId.substring(1);
       if(re_id === interaction.user.id) {
